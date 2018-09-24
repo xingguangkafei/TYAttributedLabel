@@ -21,8 +21,11 @@
     
     // addAttributedText
     TYAttributedLabel *label1 = [[TYAttributedLabel alloc]init];
+    /*
+     \t(tab) 能表示一个首行缩进
+     */
     label1.text = @"\t总有一天你将破蛹而出，成长得比人们期待的还要美丽。但这个过程会很痛，会很辛苦，有时候还会觉得灰心。面对着汹涌而来的现实，觉得自己渺小无力。但这，也是生命的一部分。做好现在你能做的，然后，一切都会好的。我们都将孤独地长大，不要害怕。";
-    
+    label1.textColor = [UIColor redColor];
     // 文字间隙
     label1.characterSpacing = 2;
     // 文本行间隙
@@ -34,7 +37,7 @@
     label1.font = [UIFont systemFontOfSize:17];
     
     // 设置view的位置和宽，会自动计算高度
-    [label1 setFrameWithOrign:CGPointMake(0, 64) Width:CGRectGetWidth(self.view.frame)];
+    [label1 setFrameWithOrign:CGPointMake(0, 64 + 44) Width:CGRectGetWidth(self.view.frame)];
     [self.view addSubview:label1];
     
     
@@ -49,7 +52,7 @@
     [label2 appendImageWithName:@"haha" size:CGSizeMake(15, 15)];
     [label2 appendText:@",都没“有捷径“"];
     [label2 appendImageWithName:@"haha" size:CGSizeMake(15, 15)];
-//    [label2 appendText:@"\t任何值得等待的人，都会迟来一些；\n"];
+    [label2 appendText:@"\t任何值得等待的人，都会迟来一些；\n"];
 //    [label2 appendText:@"\t任何值得追逐的梦想，都必须在一路艰辛中备受嘲笑。\n"];
 //    [label2 appendText:@"\t所以，不要怕，不要担心你所追逐的有可能是错的。\n"];
 //    [label2 appendText:@"\t因为，不被嘲笑的梦想不是梦想。\n"];
@@ -125,6 +128,21 @@
     label7.linesSpacing = 2;
     
     [self.view addSubview:label7];
+    
+    
+    
+    NSMutableArray * arr = [NSMutableArray arrayWithArray:@[@1, @5, @3, @2, @9, @6]];
+    NSArray * arr2 = [arr sortedArrayUsingComparator:^NSComparisonResult(NSNumber * obj1, NSNumber * obj2) {
+        if (obj1.intValue < obj2.intValue) {
+            return NSOrderedAscending;
+        } else {
+            return NSOrderedDescending;
+        }
+    }];
+    NSLog(@"%@", arr);
+    NSLog(@"%@", arr2);
+    
+    
 }
 
 - (void)didReceiveMemoryWarning {
