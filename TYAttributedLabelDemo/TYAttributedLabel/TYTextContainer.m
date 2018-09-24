@@ -380,7 +380,12 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
         }
     }];
 }
-
+/* CTRunStatus
+ kCTRunStatusNoStatus = 0,  没有状态
+ kCTRunStatusRightToLeft = (1 << 0), 跑道从左往右
+ kCTRunStatusNonMonotonic = (1 << 1), 跑道非线性的，例如可能是指数级的
+ kCTRunStatusHasNonIdentityMatrix = (1 << 2) 跑道需要指定一个矩阵，来指定每一个run
+ */
 - (void)saveTextStorageRectWithFrame:(CTFrameRef)frame
 {
     if (!frame) {
@@ -388,10 +393,12 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
     }
     // 获取每行
     CFArrayRef lines = CTFrameGetLines(frame);
+    // 准备获取每一行的位置
     CGPoint lineOrigins[CFArrayGetCount(lines)];
+    // 准备获取每一行的位置和大小
     CTFrameGetLineOrigins(frame, CFRangeMake(0, 0), lineOrigins);
     CGFloat viewWidth = _textWidth;
-    
+    // 最终行数取 能显示出来的实际行数
     NSInteger numberOfLines = _numberOfLines > 0 ? MIN(_numberOfLines, CFArrayGetCount(lines)) : CFArrayGetCount(lines);
     
     NSMutableDictionary *runRectDictionary = [NSMutableDictionary dictionary];
@@ -403,33 +410,46 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
         CGFloat lineAscent;
         CGFloat lineDescent;
         CGFloat lineLeading;
+        // 获取每一行的 上高下高，顶高
         CTLineGetTypographicBounds(line, &lineAscent, &lineDescent, &lineLeading);
-        
+        // 获取每一行的run数组
         CFArrayRef runs = CTLineGetGlyphRuns(line);
         // 获得每行的run
         for (int j = 0; j < CFArrayGetCount(runs); j++) {
             CGFloat runAscent;
             CGFloat runDescent;
             CGPoint lineOrigin = lineOrigins[i];
+            // 获取到最小的绘制单位：run
             CTRunRef run = CFArrayGetValueAtIndex(runs, j);
             // run的属性字典
+            // 获取到绘制的时候，用kTYTextRunAttributedName作为key添加到attString的storage
             NSDictionary* attributes = (NSDictionary*)CTRunGetAttributes(run);
             id<TYTextStorageProtocol> textStorage = [attributes objectForKey:kTYTextRunAttributedName];
             
             if (textStorage) {
+                // 如果是有个storage，获取run的宽度；获取run的 上高和下高
                 CGFloat runWidth  = CTRunGetTypographicBounds(run, CFRangeMake(0,0), &runAscent, &runDescent, NULL);
-                
+                // 如果 文本有宽度，且，run的宽度大于文本宽度，那么就强制使用设置好的文本宽度
                 if (viewWidth > 0 && runWidth > viewWidth) {
                     runWidth  = viewWidth;
                 }
+                /*
+                 获取run的大小和位置；
+                 位置x = 这一行的x + run的location
+                 位置y = 这一行的y - run的下高
+                 宽w = runWidth
+                 宽h = run上高 + run下高
+                 */
                 CGRect runRect = CGRectMake(lineOrigin.x + CTLineGetOffsetForStringIndex(line, CTRunGetStringRange(run).location, NULL), lineOrigin.y - runDescent, runWidth, runAscent + runDescent);
                 
                 if ([textStorage conformsToProtocol:@protocol(TYDrawStorageProtocol)]) {
+                    // 找出drawStorage添加runRect到DrawRect字典
                     [drawRectDictionary setObject:textStorage forKey:[NSValue valueWithCGRect:runRect]];
                 } else if ([textStorage conformsToProtocol:@protocol(TYLinkStorageProtocol)]) {
+                    // 找出linkStorage添加runRect到LinkRect字典
                     [linkRectDictionary setObject:textStorage forKey:[NSValue valueWithCGRect:runRect]];
                 }
-                
+                // 所有storage类型都添加到RunRect字典
                 [runRectDictionary setObject:textStorage forKey:[NSValue valueWithCGRect:runRect]];
             }
         }
@@ -470,7 +490,7 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
     }
     _runRectDictionary = runRectDictionary;
 }
-
+// 这个函数是算了至少两边的，一次是计算View的size的时候，一次是draw到rect的时候
 - (CGSize)getSuggestedSizeWithFramesetter:(CTFramesetterRef)framesetter width:(CGFloat)width
 {
     if (_attString == nil || width <= 0) {
@@ -587,6 +607,7 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
         return NO;
     }
     // CoreText context coordinates are the opposite to UIKit so we flip the bounds
+    // 转换 CoreGraphic 和 UIKit的坐标系
     CGAffineTransform transform =  CGAffineTransformScale(CGAffineTransformMakeTranslation(0, viewHeight), 1.f, -1.f);
     
     __block BOOL find = NO;
@@ -684,8 +705,8 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
         NSAttributedString *attAppendString = [textStorage appendTextStorageAttributedString];
         // NSLog(@"attAppendString-%@-attAppendString",attAppendString.string);
         // 经过打印，还真是个空格，但是这个空格显示出来没有长度，因为xcode的log光标，要往左或者往右移一下才行
-        NSLog(@"attAppendString-%@-attAppendString",attAppendString);
-        NSLog(@"attAppendString-%lu-attAppendString",attAppendString.string.length);
+//        NSLog(@"attAppendString-%@-attAppendString",attAppendString);
+//        NSLog(@"attAppendString-%lu-attAppendString",attAppendString.string.length);
         
         /*
          更新 Storage 的 realRange：新添加的这个storage 的 location 和 length，就分别是原来String的 尾部 和 storage的长度
