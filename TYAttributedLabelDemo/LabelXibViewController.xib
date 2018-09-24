@@ -21,27 +21,29 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Z2J-ay-i0R" customClass="TYAttributedLabel">
-                    <rect key="frame" x="10" y="346" width="355" height="90"/>
-                    <color key="backgroundColor" red="0.66666668653488159" green="0.66666668653488159" blue="0.66666668653488159" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bhU-Qa-eID" customClass="TYAttributedLabel">
-                    <rect key="frame" x="16" y="130" width="355" height="166"/>
+                    <rect key="frame" x="10" y="182" width="355" height="10"/>
                     <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
-                        <constraint firstAttribute="height" constant="166" id="7vt-Xu-2uM"/>
+                        <constraint firstAttribute="height" priority="250" constant="10" id="LJS-bi-ugG"/>
+                    </constraints>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Z2J-ay-i0R" customClass="TYAttributedLabel">
+                    <rect key="frame" x="10" y="329" width="355" height="10"/>
+                    <color key="backgroundColor" red="0.66666668653488159" green="0.66666668653488159" blue="0.66666668653488159" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" priority="250" constant="10" id="4aq-IP-Hz3"/>
                     </constraints>
                 </view>
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
-                <constraint firstItem="Z2J-ay-i0R" firstAttribute="top" secondItem="bhU-Qa-eID" secondAttribute="bottom" constant="50" id="HNz-51-yv5"/>
-                <constraint firstAttribute="trailing" secondItem="bhU-Qa-eID" secondAttribute="trailing" constant="4" id="cDv-hy-E1v"/>
-                <constraint firstAttribute="bottom" secondItem="Z2J-ay-i0R" secondAttribute="bottom" constant="321" id="iWM-fJ-PqJ"/>
-                <constraint firstItem="bhU-Qa-eID" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="16" id="lZ8-m1-mUC"/>
-                <constraint firstAttribute="trailing" secondItem="Z2J-ay-i0R" secondAttribute="trailing" constant="10" id="oXX-uQ-XY3"/>
-                <constraint firstItem="Z2J-ay-i0R" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="10" id="vUv-MF-xpc"/>
-                <constraint firstItem="bhU-Qa-eID" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="130" id="yLs-kK-GvO"/>
+                <constraint firstItem="Z2J-ay-i0R" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="10" id="3Vw-1y-shK"/>
+                <constraint firstItem="bhU-Qa-eID" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="10" id="FLZ-kc-Twl"/>
+                <constraint firstAttribute="trailing" secondItem="Z2J-ay-i0R" secondAttribute="trailing" constant="10" id="KEc-5B-gpo"/>
+                <constraint firstItem="Z2J-ay-i0R" firstAttribute="top" secondItem="bhU-Qa-eID" secondAttribute="bottom" constant="137" id="McN-qf-bCM"/>
+                <constraint firstItem="bhU-Qa-eID" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="182" id="dTt-TD-9fe"/>
+                <constraint firstAttribute="trailing" secondItem="bhU-Qa-eID" secondAttribute="trailing" constant="10" id="xcQ-B1-QL7"/>
             </constraints>
             <point key="canvasLocation" x="24.800000000000001" y="51.724137931034484"/>
         </view>

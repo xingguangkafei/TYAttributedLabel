@@ -22,7 +22,7 @@
     // Do any additional setup after loading the view from its nib.
     
     // 如果你需要自动推断高度，需要设置preferredMaxLayoutWidth
-    //_label.preferredMaxLayoutWidth = CGRectGetWidth([UIScreen mainScreen].bounds)-2*10;
+    _label.preferredMaxLayoutWidth = CGRectGetWidth([UIScreen mainScreen].bounds)-2*10;
     _label.numberOfLines = 1;
     _label.lineBreakMode = kCTLineBreakByTruncatingTail;
     _label.font = [UIFont systemFontOfSize:14];

@@ -612,10 +612,16 @@ NSString *const kTYTextRunAttributedName = @"TYTextRunAttributedName";
 {
     if (_preferredMaxLayoutWidth != preferredMaxLayoutWidth) {
         _preferredMaxLayoutWidth = preferredMaxLayoutWidth;
+        // 只要改变宽度，就会让原先的布局失效
         [self invalidateIntrinsicContentSize];
     }
 }
-
+/*
+ 这个属性是 为了在ixib的时候，自定义View和系统的自动布局系统沟通的方式
+ 但是这个属性计算的时候，一定要自己计算，不能再基于内控控件的frame
+ 
+ 如果不设置_preferredMaxLayoutWidth，这个属性就会返回0
+ */
 - (CGSize)intrinsicContentSize
 {
     return [self getSizeWithWidth:_preferredMaxLayoutWidth];

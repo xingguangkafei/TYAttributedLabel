@@ -68,6 +68,7 @@ typedef NS_ENUM(NSUInteger, TYVerticalAlignment) {
 
 @property (nonatomic, strong)   TYTextContainer *textContainer;
 
+// 设置这个值，并且改变xib里面的label的高度的优先级低一些，比如改为250，就可以让xib的label自适应高度
 @property (nonatomic, assign)   CGFloat preferredMaxLayoutWidth; // Autolayout
 
 @property (nonatomic, assign)   BOOL isWidthToFit;    // 宽度自适应 默认NO
@@ -114,6 +115,7 @@ typedef NS_ENUM(NSUInteger, TYVerticalAlignment) {
 
 /**
  *  调用可以自动计算frame大小（请确定label之前设置了宽度）
+  因为内部重写了sizeThatFit方法，所以调用了这个方法，就跟系统的UIlabel很类似了
  */
 - (void)sizeToFit;
 
