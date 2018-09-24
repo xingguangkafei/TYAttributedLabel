@@ -10,31 +10,51 @@
 
 #define kTextColor       [UIColor colorWithRed:51/255.0 green:51/255.0 blue:51/255.0 alpha:1]
 #define kLinkColor       [UIColor colorWithRed:0/255.0 green:91/255.0 blue:255/255.0 alpha:1]
-
+/*
+ NSMutableAttributedString *attriText = [[NSMutableAttributedString alloc] initWithString:nil];
+ NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
+ [paragraphStyle setLineSpacing:5];
+ [paragraphStyle setLineBreakMode:NSLineBreakByWordWrapping];
+ [attriText addAttributes:@{NSFontAttributeName:[UIFont systemFontOfSize:11.0],NSForegroundColorAttributeName:[UIColor redColor],NSParagraphStyleAttributeName:@0} range:NSMakeRange(0, 0)];
+ 
+ NSAttributedString 这个类定义在Foundation框架里，却在UIKit框架里定义了NSFontAttributeName这种属性... swift用起来就友好很多了
+ 
+ Foundation --> 定义 NSAttributedString
+ UIKit --> 类扩展 NSAttributedString
+ CoreText --> 定义 CGStringAttribute
+ */
 // this code quote TTTAttributedLabel
 static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstraints(CTFramesetterRef framesetter, NSAttributedString *attributedString, CGSize size, NSUInteger numberOfLines) {
+    // 如果只有一行的话呢，这个length就是文字的长度
     CFRange rangeToSize = CFRangeMake(0, (CFIndex)[attributedString length]);
     CGSize constraints = CGSizeMake(size.width, MAXFLOAT);
     
     if (numberOfLines > 0) {
         // If the line count of the label more than 1, limit the range to size to the number of lines that have been set
+        // 创建一个可变路径
         CGMutablePathRef path = CGPathCreateMutable();
+        // 再在路径上画出矩形
         CGPathAddRect(path, NULL, CGRectMake(0.0f, 0.0f, constraints.width, MAXFLOAT));
+        // 计算出 CoreText 的实际大小
         CTFrameRef frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0, 0), path, NULL);
+        // 获取全部文字所需要的行数
         CFArrayRef lines = CTFrameGetLines(frame);
-        
+        // 如果全部行数大于0，至少有一行的时候
         if (CFArrayGetCount(lines) > 0) {
+            // 最后可见的一行 = 设置的行数和实际行数的最小值
             NSInteger lastVisibleLineIndex = MIN((CFIndex)numberOfLines, CFArrayGetCount(lines)) - 1;
+            // 最后一行文字数据
             CTLineRef lastVisibleLine = CFArrayGetValueAtIndex(lines, lastVisibleLineIndex);
-            
+            // 最后一行文字的 长度和所在的位置
             CFRange rangeToLayout = CTLineGetStringRange(lastVisibleLine);
+            // 根据随后一行的长度和所在的位置，计算最终的大小
             rangeToSize = CFRangeMake(0, rangeToLayout.location + rangeToLayout.length);
         }
         
         CFRelease(frame);
         CFRelease(path);
     }
-    
+    // CoreText接口计算最终文字绘制出来的size大小
     CGSize suggestedSize = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, rangeToSize, NULL, constraints, NULL);
     
     return CGSizeMake(ceil(suggestedSize.width), ceil(suggestedSize.height));
@@ -58,8 +78,7 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
 
 @implementation TYTextContainer
 
-- (instancetype)init
-{
+- (instancetype)init {
     if (self = [super init]) {
         [self setupProperty];
     }
@@ -68,8 +87,7 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
 
 #pragma mark - getter
 
-- (NSMutableArray *)textStorageArray
-{
+- (NSMutableArray *)textStorageArray {
     if (_textStorageArray == nil) {
         _textStorageArray = [NSMutableArray array];
     }
@@ -80,20 +98,18 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
     return _attString.string;
 }
 
-- (NSAttributedString *)attributedText
-{
+- (NSAttributedString *)attributedText {
     return [_attString copy];
 }
 
-- (NSAttributedString *)createAttributedString
-{
+- (NSAttributedString *)createAttributedString {
     [self addTextStoragesWithAtrributedString:_attString];
     if (_attString == nil) {
         _attString = [[NSMutableAttributedString alloc]init];
     }
     return [_attString copy];
 }
-
+// 设置一些默认属性
 #pragma mark - setter
 - (void)setupProperty
 {
@@ -305,6 +321,7 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
     if (attString && _textStorageArray.count > 0) {
         
         // 排序range
+        // 这个排序函数式有问题的
         [self sortTextStorageArray:_textStorageArray];
         
         for (id<TYTextStorageProtocol> textStorage in _textStorageArray) {
@@ -343,6 +360,14 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
     }
 }
 
+/*
+ storage: n. 存储；仓库；贮藏所
+ 
+ 排序 文本存储数组，数组里的每个元素都遵循TYTextStorageProtocol协议
+ 按照元素的 range属性的location来大小来排序，如果location小的话，就升序排列
+ 
+ 这个排序的结果跟没有排序是一样的，作者写错了 ？
+ */
 - (void)sortTextStorageArray:(NSMutableArray *)textStorageArray
 {
     [textStorageArray sortUsingComparator:^NSComparisonResult(id<TYTextStorageProtocol> obj1, id<TYTextStorageProtocol> obj2) {
@@ -458,13 +483,14 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
     
     // 是否需要更新frame
     if (framesetter == nil) {
-        
+        // 如果没有 CoreText frameSetter, 那么就创建一个
         framesetter = CTFramesetterCreateWithAttributedString((CFAttributedStringRef)[self createAttributedString]);
     }else {
         CFRetain(framesetter);
     }
     
     // 获得建议的size
+    // 这里主要是为了把外界代码设置的文字行数那个值用上，才又包装了一个方法
     CGSize suggestedSize = CTFramesetterSuggestFrameSizeForAttributedStringWithConstraints(framesetter, _attString, CGSizeMake(width,MAXFLOAT), _numberOfLines);
     
     CFRelease(framesetter);
@@ -620,11 +646,13 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
 
 - (void)appendText:(NSString *)text
 {
+    // 添加文字的时候，创建一个 NSAttributedString
     NSAttributedString *attributedText = [self createTextAttibuteStringWithText:text];
     [self appendTextAttributedString:attributedText];
+    // 重置 CoreText Frame属性
     [self resetFrameRef];
 }
-
+// 把传递进来的参数 添加到原来的 NSAttributedString 后面，调用 NSAttributedString 的接口 appendAttributedString
 - (void)appendTextAttributedString:(NSAttributedString *)attributedText
 {
     if (attributedText == nil) {
@@ -654,8 +682,20 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
         }
         
         NSAttributedString *attAppendString = [textStorage appendTextStorageAttributedString];
+        // NSLog(@"attAppendString-%@-attAppendString",attAppendString.string);
+        // 经过打印，还真是个空格，但是这个空格显示出来没有长度，因为xcode的log光标，要往左或者往右移一下才行
+        NSLog(@"attAppendString-%@-attAppendString",attAppendString);
+        NSLog(@"attAppendString-%lu-attAppendString",attAppendString.string.length);
+        
+        /*
+         更新 Storage 的 realRange：新添加的这个storage 的 location 和 length，就分别是原来String的 尾部 和 storage的长度
+         如果是文字storage 就是文字长度
+         如果是图片storage 就是单位一长度
+         */
         textStorage.realRange = NSMakeRange(_attString.length, attAppendString.length);
+        // 把这个追加的storage的内容添加到原有的富文本尾部
         [self appendTextAttributedString:attAppendString];
+        // 清空frame计算，为重绘做准备
         [self resetFrameRef];
     }
 }

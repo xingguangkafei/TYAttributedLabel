@@ -25,7 +25,36 @@
 {
     _fixRange = [self fixRange:_range replaceStringNum:replacedStringNum];
 }
-
+/*
+ 看这里： https://www.jianshu.com/p/3da70c418fe7
+ 
+ familyName 字体家族的名字
+ fontName 字体的名字
+ pointSize 字体大小
+ ascender 基准线以上的高度
+ descender 基准线以下的高度
+ capHeight 大小的高度
+ xHeight 小写x的高度
+ lineHeight 当前字体下的行高
+ leading 行间距（一般为0）
+ 
+ UIFont *font = [UIFont systemFontOfSize:14];
+ NSLog(@"font.pointSize = %f,font.ascender = %f,font.descender = %f,font.capHeight = %f,font.xHeight = %f,font.lineHeight = %f,font.leading = %f",font.pointSize,font.ascender,font.descender,font.capHeight,font.xHeight,font.lineHeight,font.leading);
+ 
+ font.pointSize = 14.000000,
+ font.ascender = 13.330078,
+ font.descender = -3.376953,
+ font.capHeight = 9.864258,
+ font.xHeight = 7.369141,
+ font.lineHeight = 16.707031,
+ font.leading = 0.000000
+ 
+ 其中可以很明显的看到：
+ 
+ 设置的字体大小就是 pointSize
+ ascender + descender = lineHeight
+ 3.实际行与行之间就是存在间隙的，间隙大小即为 lineHeight - pointSize，在富文本中设置行高的时候，其实际文字间的距离就是加上这个距离的。（原来一直错误的理解文字间的距离就是行间距）
+ */
 - (void)setTextfontAscent:(CGFloat)ascent descent:(CGFloat)descent;
 {
     _fontAscent = ascent;
@@ -55,6 +84,7 @@
 - (NSAttributedString *)appendTextStorageAttributedString
 {
     // 创建空字符属性文本
+    // 意思就是创建了一个空格字符串
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc]initWithString:[self spaceReplaceString]];
     // 修正range
     _range = NSMakeRange(0, 1);
@@ -146,6 +176,7 @@
 - (void)setAppropriateAlignment
 {
     // 判断size 大小 小于 _fontAscent 把对齐设为中心 更美观
+    // 这里写的挺好的，很细心
     if (_size.height <= _fontAscent + _fontDescent) {
         _drawAlignment = TYDrawAlignmentCenter;
     }

@@ -20,6 +20,7 @@
 {
     if (color.CGColor)
     {
+        // 用 CoreText属性，用NSAttributeString接口改变文本颜色
         [self removeAttribute:(NSString *)kCTForegroundColorAttributeName range:range];
         
         [self addAttribute:(NSString *)kCTForegroundColorAttributeName
@@ -39,11 +40,12 @@
 {
     if (font)
     {
+        // 这里用CoreText类型的 文字属性，感觉用NSAttributeString里的应该效果一样
         [self removeAttribute:(NSString*)kCTFontAttributeName range:range];
-        
+        // 用CoreText创建文字字体属性
         CTFontRef fontRef = CTFontCreateWithName((CFStringRef)font.fontName, font.pointSize, nil);
         if (nil != fontRef)
-        {
+        {   // 用 NSAttributeSting 接口设置字体属性
             [self addAttribute:(NSString *)kCTFontAttributeName value:(__bridge id)fontRef range:range];
             CFRelease(fontRef);
         }
@@ -59,7 +61,7 @@
 - (void)addAttributeCharacterSpacing:(unichar)characterSpacing range:(NSRange)range
 {
     [self removeAttribute:(id)kCTKernAttributeName range:range];
-    
+    // 这个改变字间距的value的创建，也是这么皮，怪不得githubi另外一哥们那么直接设置没有效果
     CFNumberRef num =  CFNumberCreate(kCFAllocatorDefault,kCFNumberSInt8Type,&characterSpacing);
     [self addAttribute:(id)kCTKernAttributeName value:(__bridge id)num range:range];
     CFRelease(num);
@@ -102,6 +104,11 @@
 {
     [self removeAttribute:(id)kCTStrokeWidthAttributeName range:range];
     if (strokeWidth > 0) {
+        /* synonym：n. 同义词；同义字
+         kCFAllocatorDefault 和 NULL 同一个意思
+         用CFNumber结构体 ，创建一个表达颜色的value
+         用NSAttributeString接口，使用这个参数
+         */
         CFNumberRef num = CFNumberCreate(kCFAllocatorDefault,kCFNumberSInt8Type,&strokeWidth);
         
         [self addAttribute:(id)kCTStrokeWidthAttributeName value:(__bridge id)num range:range];
@@ -109,6 +116,7 @@
     
     [self removeAttribute:(id)kCTStrokeColorAttributeName range:range];
     if (strokeColor) {
+        // 这个value的传值，是真的皮，改变填充颜色和填充宽度，竟然方式差别这么大
         [self addAttribute:(id)kCTStrokeColorAttributeName value:(id)strokeColor.CGColor range:range];
     }
     

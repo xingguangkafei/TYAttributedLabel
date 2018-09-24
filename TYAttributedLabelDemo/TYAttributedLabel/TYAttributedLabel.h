@@ -54,6 +54,15 @@ typedef NS_ENUM(NSUInteger, TYVerticalAlignment) {
 @property (nonatomic, assign)   CGFloat     paragraphSpacing;   // 段落间距
 
 @property (nonatomic, assign)   CTTextAlignment textAlignment;  // 文本对齐方式 kCTTextAlignmentLeft
+/* 换行模式
+ kCTLineBreakByWordWrapping = 0, // 默认文字超过label宽度就会换行，按单词换行
+ kCTLineBreakByCharWrapping = 1, // 按字母换行
+ kCTLineBreakByClipping = 2,     // 文字正常显示到label的边上，然后会被直接砍掉，甚至会有一个文字显示了一半
+ Truncating ： 截断
+ kCTLineBreakByTruncatingHead = 3,// 文字在头部加三个点...然后显示出剩下的部分，跟4刚好相反
+ kCTLineBreakByTruncatingTail = 4, // 如果文字超过label宽度，就不再显示了，就只在尾部添加三个点...
+ kCTLineBreakByTruncatingMiddle = 5 // 这个肯定是把文字中间搞出三个点...
+ */
 @property (nonatomic, assign)   CTLineBreakMode lineBreakMode;  // 换行模式 kCTLineBreakByCharWrapping
 @property (nonatomic, assign)   TYVerticalAlignment verticalAlignment; // 垂直对齐方式 默认是向上对齐
 

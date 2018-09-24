@@ -807,6 +807,10 @@ NSString *const kTYTextRunAttributedName = @"TYTextRunAttributedName";
 - (void)appendText:(NSString *)text
 {
     [_textContainer appendText:text];
+    /*
+     使无效，固有的 内容大小
+     让固有的大小失效，然后重绘
+     */
     [self invalidateIntrinsicContentSize];
     [self setNeedsDisplay];
 }
